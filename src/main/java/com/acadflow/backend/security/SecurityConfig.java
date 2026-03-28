@@ -31,7 +31,7 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/auth/hash").permitAll()
                         .requestMatchers("/usuarios/**").permitAll()
                         .requestMatchers("/upload/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()

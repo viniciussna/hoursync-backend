@@ -42,5 +42,13 @@ public class AuthController {
                 .orElse(ResponseEntity.status(404).body("Usuário não encontrado"));
     }
 
-
+    @PutMapping("/reset-senha")
+    public ResponseEntity<?> resetSenha(@RequestParam String email, @RequestParam String novaSenha) {
+        return usuarioRepository.findByEmail(email)
+                .map(usuario -> {
+                    usuario.setSenha(passwordEncoder.encode(novaSenha));
+                    return ResponseEntity.ok(usuarioRepository.save(usuario));
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
 }
