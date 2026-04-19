@@ -1,4 +1,5 @@
 package com.acadflow.backend.entity;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -6,6 +7,7 @@ import lombok.Data;
 @Entity
 @Table(name = "usuarios")
 public class Usuario {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
@@ -28,6 +30,10 @@ public class Usuario {
     private String telefone;
 
     private String faculdade;
+
+    private String matricula;
+
+    private String cpf;
 
     @Column(name = "foto_url")
     private String fotoUrl;

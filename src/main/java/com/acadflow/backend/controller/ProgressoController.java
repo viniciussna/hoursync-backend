@@ -1,5 +1,6 @@
 package com.acadflow.backend.controller;
 
+import com.acadflow.backend.dto.CalculoHorasDTO;
 import com.acadflow.backend.dto.ProgressoAlunoDTO;
 import com.acadflow.backend.entity.StatusCertificado;
 import com.acadflow.backend.repository.CertificadoRepository;
@@ -88,6 +89,49 @@ public class ProgressoController {
                             horasExigidas,
                             Math.round(percentual * 100.0) / 100.0,
                             status
+                    ));
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/calculo/{certificadoId}")
+    public ResponseEntity<CalculoHorasDTO> calcularHoras(@PathVariable String certificadoId) {
+        return certificadoRepository.findById(certificadoId)
+                .map(cert -> {
+                    String alunoId = cert.getAluno().getId();
+                    String cursoId = cert.getCurso().getId();
+                    Integer limiteSemestral = cert.getCurso().getHorasPorSemestre() != null
+                            ? cert.getCurso().getHorasPorSemestre() : 25;
+
+                    int horasUtilizadas = certificadoRepository.findByAlunoId(alunoId)
+                            .stream()
+                            .filter(c -> c.getStatus() == StatusCertificado.APROVADO)
+                            .filter(c -> c.getCurso().getId().equals(cursoId))
+                            .mapToInt(c -> c.getHoras() != null ? c.getHoras() : 0)
+                            .sum();
+
+                    int horasDisponiveis = Math.max(0, limiteSemestral - horasUtilizadas);
+                    int horasSolicitadas = cert.getHoras() != null ? cert.getHoras() : 0;
+                    int horasQueSeraoAprovadas = Math.min(horasSolicitadas, horasDisponiveis);
+
+                    String mensagem;
+                    if (horasDisponiveis == 0) {
+                        mensagem = "Aluno já completou as horas máximas neste semestre";
+                    } else if (horasSolicitadas > horasDisponiveis) {
+                        mensagem = "Aprovado parcialmente devido ao limite semestral de " + limiteSemestral + "h";
+                    } else {
+                        mensagem = "Aprovado integralmente";
+                    }
+
+                    return ResponseEntity.ok(new CalculoHorasDTO(
+                            alunoId,
+                            cert.getAluno().getNome(),
+                            horasSolicitadas,
+                            horasUtilizadas,
+                            limiteSemestral,
+                            horasDisponiveis,
+                            horasQueSeraoAprovadas,
+                            mensagem
                     ));
                 })
                 .orElse(ResponseEntity.notFound().build());
