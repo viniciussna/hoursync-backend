@@ -32,6 +32,17 @@ public class Certificado {
 
     private String turma;
 
+    private String grupo;
+
+    @Column(name = "codigo_atividade")
+    private String codigoAtividade;
+
+    @Column(name = "descricao_atividade", columnDefinition = "TEXT")
+    private String descricaoAtividade;
+
+    @Column(name = "horas_aprovadas")
+    private Integer horasAprovadas;
+
     @Column(name = "criado_em")
     private LocalDateTime criadoEm = LocalDateTime.now();
 
